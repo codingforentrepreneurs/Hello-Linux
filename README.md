@@ -33,8 +33,9 @@ Here's the plan:
     - Let's Encrypt for HTTPs Certificates
 
 
-Intall & Setup
-ssh into your virtual machine:
+### Virtual Machine Setup
+After you run the below command, you'll see an endpoint to add to your local git remote.
+
 ```console
 wget https://raw.githubusercontent.com/codingforentrepreneurs/Hello-Linux/master/setup.sh
 chmod +x setup.sh
