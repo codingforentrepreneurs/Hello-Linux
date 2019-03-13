@@ -20,7 +20,7 @@ Here's the plan:
 
 - Launch a virtual machine (droplet) with [Digital Ocean](https://kirr.co/l8v1n1)
 - Access our droplet via SSH 
-- Install Updates & Dependancies via bash script which is _coming soon_
+- Install Updates & Dependancies via bash script which is [here](./setup.sh)
 - Configure & Implement:
     - Git (for push, build, & deploy) [[docs](https://git-scm.com/)]
     - Supervisor (process manager) [[docs](http://supervisord.org)]
