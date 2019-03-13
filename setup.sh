@@ -52,6 +52,10 @@ then
 
     sudo apt-get install git -y 
 
+    sudo apt-get install postgresql postgresql-contrib -y
+
+    sudo python3 -m pip install pipenv
+
     sudo python3 -m pip install virtualenv
 
     sudo service supervisor start
