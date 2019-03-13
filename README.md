@@ -42,3 +42,11 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
+
+### 2. Production-Ready Django Project
+We'll be using a bare bones Django project that's mostly ready for production. It's just an example but an important one to get this working.
+
+Go to [this guide](https://kirr.co/8mjnna) to get started.
+
+
+

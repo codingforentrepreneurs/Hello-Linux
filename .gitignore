@@ -1,3 +1,7 @@
+.DS_Store
+src/cfehome/settings/local.py
+cfehome/settings/local.py
+
 # Ingore sublime text
 *.sublime-*
 

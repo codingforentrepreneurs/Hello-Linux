@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+dj-database-url = "==0.4.2"
+django-crispy-forms = "==1.6.1"
+gunicorn = "==19.7.1"
+olefile = "==0.44"
+psycopg2 = "==2.7.3"
+pytz = "==2017.2"
+Django = "==1.11.17"
+Pillow = "==4.2.1"
+
+[requires]
+python_version = "3.6"
