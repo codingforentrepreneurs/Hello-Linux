@@ -43,13 +43,16 @@ databaseCreateResponse="$(echo -n "${databaseCreate}" | sed -e 's/[^[:alnum:]]/-
 | tr -s '_' | tr A-Z a-z)"
 
 
-if [ "$databaseCreateResponse" == 'y' ]
+customDBPW='false'
+newPassword=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+if [ "$databaseCreateResponse" == 'custom' ]
 then
     while true; do
         echo "What would you like the database password to be?"
         read -s -p "Password (typing hidden): " newPassword
         echo
         read -s -p "Confirm password (typing hidden): " password2
+        customDBPW='true'
         echo
         [ "$newPassword" = "$password2" ] && break
         echo "Please try again"
@@ -111,7 +114,10 @@ then
     echo "Database will be created with"
     echo "Database Name: ${projectDB}"
     echo "Database Username: ${projectDBuser}"
-    echo "Database Password: <already set>"
+    if [ "$customDBPW" == 'false' ]
+    then
+        echo "Database password ${newPassword}"
+    fi
 fi
 
 if [ "$setupNginxResponse" == 'y' ]
@@ -165,6 +171,12 @@ then
 
     sudo apt-get install nginx curl -y
 
+    sudo apt-get install ufw -y
+
+    sudo ufw allow 'Nginx Full'
+
+    sudo ufw allow ssh
+
     sudo python3 -m pip install virtualenv
 
     sudo service supervisor start
@@ -195,7 +207,7 @@ then
         git clone https://github.com/codingforentrepreneurs/CFE-Blank-Project . --bare
         git --work-tree="/var/www/${projectslug}" --git-dir="/var/repo/${projectgit}" checkout -f
         virtualenv  -p python3.6 /var/www/${projectslug}
-        sudo rm /var/www/${projectslug}/cfehome/settings/local.py
+        sudo rm /var/www/${projectslug}/src/cfehome/settings/local.py
         virtualenvbin="/var/www/${projectslug}/bin"
         $virtualenvbin/python -m pip install -r "/var/www/${projectslug}/src/requirements.txt"
         
@@ -258,12 +270,16 @@ then
     echo "Database created"
     echo "Database name: ${projectDB}"
     echo "Database username ${projectDBuser}"
-    echo "Database password ******** (set above)"
+    if [ "$customDBPW" == 'false' ]
+    then
+        echo "Database password ${newPassword}"
+    fi
     if [ "$defaultDjangoProject" == 'y' ] 
     then
         echo "Updating django project to include database settings"
         databaseSettingsPath="/var/www/${projectslug}/src/cfehome/settings/db_conf.py"
-        databaseSettings="DATABASES = {
+        databaseSettings="ALLOWED_HOSTS=['${localip}']
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': '${projectDB}',
@@ -276,10 +292,75 @@ then
 }"
         echo "${databaseSettings}" > "${databaseSettingsPath}"
         echo "Django updated with Created Database Settings"
+
+        ${virtualenvbin}/python /var/www/${projectslug}/src/manage.py migrate
+        cd /var/www/${projectslug}
+        source bin/activate
+        cd src
+        djangoPassword=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+        echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@myproject.com', '${djangoPassword}')" | python manage.py shell
+        echo "Django Username: admin"
+        echo "Django Password: ${djangoPassword}"
     fi
 fi
 
 
+
+
+
+
+
+if [ "$setupGunicornResponse" == 'y' ]
+then
+    echo
+    echo
+    echo "Creating gunicorn service in supervisor"
+    sudo mkdir /var/log
+    sudo mkdir /var/log/${projectslug}/
+    gunicornConfFile="/etc/supervisor/conf.d/${projectslug}-gunicorn.conf"
+    echo "Your gunicorn supervisor file will located at:"
+    echo "${gunicornConfFile}"
+    echo
+    supervisorText="[program:${projectslug}_gunicorn]
+user=${USER}
+directory=/var/www/${projectslug}/src/
+command=${virtualenvbin}/gunicorn --workers 3 --bind unix:${projectslug}.sock cfehome.wsgi:application
+ 
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/${projectslug}/gunicorn.log
+stderr_logfile=/var/log/${projectslug}/gunicorn.err.log"
+    echo "${supervisorText}" > "${gunicornConfFile}"
+    supervisorctl reread
+    supervisorctl update
+fi
+
+
+
+
+if [ "$setupCeleryResponse" == 'y' ]
+then
+    echo
+    echo
+    echo "Creating celery service in supervisor"
+    sudo mkdir /var/log
+    sudo mkdir /var/log/${projectslug}/
+    celeryConfFile="/etc/supervisor/conf.d/${projectslug}-celery.conf"
+    echo "Your celery supervisor file will located at:"
+    echo "${celeryConfFile}"
+    echo
+    supervisorText="[program:${projectslug}_celery]
+user=${USER}
+directory=/var/www/${projectslug}/src
+command=${virtualenvbin}/celery -A ${projectslug}.celery worker
+autostart=false
+autorestart=false
+stdout_logfile=/var/log/${projectslug}/celery.log
+stderr_logfile=/var/log/${projectslug}/celery.err.log"
+    echo "${supervisorText}" > "${celeryConfFile}"
+    supervisorctl reread
+    supervisorctl update
+fi
 
 
 if [ "$setupNginxResponse" == 'y' ]
@@ -299,7 +380,7 @@ then
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:/var/www/${projectslug}/${projectslug}.sock;
+        proxy_pass http://unix:/var/www/${projectslug}/src/${projectslug}.sock;
         proxy_buffer_size       128k;
         proxy_buffers           4 256k;
         proxy_read_timeout 60s;
@@ -317,58 +398,6 @@ then
 fi
 
 
-if [ "$setupGunicornResponse" == 'y' ]
-then
-    echo
-    echo
-    echo "Creating gunicorn service in supervisor"
-    sudo mkdir /var/log
-    sudo mkdir /var/log/${projectslug}/
-    gunicornConfFile="/etc/supervisor/conf.d/${projectslug}-gunicorn.conf"
-    echo "Your gunicorn supervisor file will located at:"
-    echo "${gunicornConfFile}"
-    echo
-    supervisorText="[program:${projectslug}_gunicorn]
-user=${USER}
-directory=/var/www/${projectslug}
-command=/path/to/virtualenv/bin/gunicorn wsgi:application
- 
-autostart=false
-autorestart=false
-stdout_logfile=/var/log/${projectslug}/gunicorn.log
-stderr_logfile=/var/log/${projectslug}/gunicorn.err.log"
-    echo "${supervisorText}" > "${gunicornConfFile}"
-    supervisorctl reread
-    supervisorctl update
-fi
-
-
-if [ "$setupCeleryResponse" == 'y' ]
-then
-    echo
-    echo
-    echo "Creating celery service in supervisor"
-    sudo mkdir /var/log
-    sudo mkdir /var/log/${projectslug}/
-    celeryConfFile="/etc/supervisor/conf.d/${projectslug}-celery.conf"
-    echo "Your celery supervisor file will located at:"
-    echo "${celeryConfFile}"
-    echo
-    supervisorText="[program:${projectslug}_celery]
-user=${USER}
-directory=/var/www/${projectslug}
-command=/path/to/virtualenv/bin/celery -A ${projectslug}.celery worker
-autostart=false
-autorestart=false
-stdout_logfile=/var/log/${projectslug}/celery.log
-stderr_logfile=/var/log/${projectslug}/celery.err.log"
-    echo "${supervisorText}" > "${celeryConfFile}"
-    supervisorctl reread
-    supervisorctl update
-fi
-
-
-
 echo
 echo
 echo
@@ -381,9 +410,12 @@ then
     echo
     echo "Database name: ${projectDB}"
     echo "Database username ${projectDBuser}"
-    echo "Database password ******** (set above)"
+    if [ "$customDBPW" == 'false' ]
+    then
+        echo "Database password ${newPassword}"
+    fi
 fi
-if [ "$createGitRepoResponse" == "y" ]
+if [ "$createGitRepoResponse" == "y" ] || [ "$defaultDjangoProjectResponse" == "y" ]
 then
     echo
     echo "**Repo & Project Created**"
@@ -396,6 +428,14 @@ then
     echo 
     echo "git remote add live ssh://${USER}@${localip}/var/repo/${projectgit}"
     echo
+fi
+
+if [ "$defaultDjangoProjectResponse" == "y" ]
+then
+    echo "Login URL: ${localip}/admin"
+    echo "Django Username: admin"
+    echo "Django Password: ${djangoPassword}"
+    echo "You should change this password right away."
 fi
 
 
