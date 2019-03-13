@@ -67,7 +67,7 @@ sudo mkdir /var/www/
 sudo mkdir /var/www/${projectslug}/
 cd ~/
 mkdir ~/${projectslug}
-ls -s /var/www/${projectslug}/ ~/${projectslug}
+ln -s /var/www/${projectslug}/ ~/${projectslug}
 
 
 mkdir /var/repo/
