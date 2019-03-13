@@ -60,17 +60,18 @@ Another option is to run:
 # enable current logged in user as a default user for postgres
 sudo -u postgres createuser $USER
 
-psql --command="CREATE DATABASE ${projectDB};"
+sudo -u postgres psql --command="CREATE DATABASE ${projectDB};"
 
-psql --command="CREATE USER ${projectDBuser} WITH PASSWORD '${newPassword}';"
+sudo -u postgres psql --command="CREATE USER ${projectDBuser} WITH PASSWORD '${newPassword}';"
 
-psql --command="ALTER ROLE ${projectDBuser} SET client_encoding TO 'utf8';"
+sudo -u postgres psql --command="ALTER ROLE ${projectDBuser} SET client_encoding TO 'utf8';"
 
-psql --command="ALTER ROLE ${projectDBuser} SET default_transaction_isolation TO 'read committed';"
+sudo -u postgres psql --command="ALTER ROLE ${projectDBuser} SET default_transaction_isolation TO 'read committed';"
 
-psql --command="ALTER ROLE ${projectDBuser} SET timezone TO 'UTC';"
+sudo -u postgres psql --command="ALTER ROLE ${projectDBuser} SET timezone TO 'UTC';"
 
-psql --command="GRANT ALL PRIVILEGES ON DATABASE ${projectDB} TO ${projectDBuser};"
+sudo -u postgres psql --command="GRANT ALL PRIVILEGES ON DATABASE ${projectDB} TO ${projectDBuser};"
+
 
 ```
 
