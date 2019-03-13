@@ -146,19 +146,26 @@ then
     echo 'Creating postgresql database.'
     echo
     echo "Create Root postgres user (ignore if fails)"
+    cd  /tmp
+
     sudo -u postgres createuser $USER
 
-    psql --command="CREATE DATABASE ${projectDB};"
+    sudo -u postgres createdb $USER
+    #su postgres
 
-    psql --command="CREATE USER ${projectDBuser} WITH PASSWORD '${newPassword}';"
+    sudo -u postgres psql --command="CREATE DATABASE ${projectDB};"
 
-    psql --command="ALTER ROLE ${projectDBuser} SET client_encoding TO 'utf8';"
+    sudo -u postgres psql --command="CREATE USER ${projectDBuser} WITH PASSWORD '${newPassword}';"
 
-    psql --command="ALTER ROLE ${projectDBuser} SET default_transaction_isolation TO 'read committed';"
+    sudo -u postgres psql --command="ALTER ROLE ${projectDBuser} SET client_encoding TO 'utf8';"
 
-    psql --command="ALTER ROLE ${projectDBuser} SET timezone TO 'UTC';"
+    sudo -u postgres psql --command="ALTER ROLE ${projectDBuser} SET default_transaction_isolation TO 'read committed';"
 
-    psql --command="GRANT ALL PRIVILEGES ON DATABASE ${projectDB} TO ${projectDBuser};"
+    sudo -u postgres psql --command="ALTER ROLE ${projectDBuser} SET timezone TO 'UTC';"
+
+    sudo -u postgres psql --command="GRANT ALL PRIVILEGES ON DATABASE ${projectDB} TO ${projectDBuser};"
+
+    cd ~/ 
 
     echo "Database created"
     echo "Database name: ${projectDB}"
