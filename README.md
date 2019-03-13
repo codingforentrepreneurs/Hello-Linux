@@ -32,3 +32,12 @@ Here's the plan:
     - Django (Python web framework) [[docs](https://www.djangoproject.com)]
     - Let's Encrypt for HTTPs Certificates
 
+
+Intall & Setup
+ssh into your virtual machine:
+```console
+wget https://raw.githubusercontent.com/codingforentrepreneurs/Hello-Linux/master/setup.sh
+chmod +x setup.sh
+./setup.sh
+```
+
