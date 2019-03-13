@@ -14,6 +14,7 @@ psycopg2 = "==2.7.3"
 pytz = "==2017.2"
 Django = "==1.11.17"
 Pillow = "==4.2.1"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.6"
