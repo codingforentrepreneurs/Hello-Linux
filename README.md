@@ -51,7 +51,10 @@ Go to [this guide](https://kirr.co/8mjnna) to get started.
 
 ### 3. Create PostgreSQL Database for Django
 
-In your virtual machine, run the setup script above or the following commands:
+To create a PostgreSQL database, **it's recommended to use [setup.sh](./setup.sh) on Server**. 
+
+Another option is to run:
+
 ```console
 
 # enable current logged in user as a default user for postgres
@@ -94,5 +97,18 @@ DATABASES = {
 }
 ```
 
+#### Activate Virtual Environment & Migrate Django
+```console
+$ cd path/to/django/proj
+$ pipenv shell
+(venv) $ python manage.py migrate
+```
+
+Our example
+```console
+$ cd /var/www/hello_linux/src/
+$ pipenv shell
+(src) $ python manage.py migrate
+```
 
 
