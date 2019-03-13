@@ -195,6 +195,7 @@ then
         git clone https://github.com/codingforentrepreneurs/CFE-Blank-Project . --bare
         git --work-tree="/var/www/${projectslug}" --git-dir="/var/repo/${projectgit}" checkout -f
         virtualenv  -p python3.6 /var/www/${projectslug}
+        sudo rm /var/www/${projectslug}/cfehome/settings/local.py
         virtualenvbin="/var/www/${projectslug}/bin"
         $virtualenvbin/python -m pip install -r "/var/www/${projectslug}/src/requirements.txt"
         
@@ -258,6 +259,24 @@ then
     echo "Database name: ${projectDB}"
     echo "Database username ${projectDBuser}"
     echo "Database password ******** (set above)"
+    if [ "$defaultDjangoProject" == 'y' ] 
+    then
+        echo "Updating django project to include database settings"
+        databaseSettingsPath="/var/www/${projectslug}/src/cfehome/settings/db_conf.py"
+        databaseSettings="DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '${projectDB}',
+        'USER':  '${projectDBuser}',
+        'PASSWORD': '${newPassword}',
+        'HOST': 'localhost',
+        'PORT': '',
+
+    }
+}"
+        echo "${databaseSettings}" > "${databaseSettingsPath}"
+        echo "Django updated with Created Database Settings"
+    fi
 fi
 
 

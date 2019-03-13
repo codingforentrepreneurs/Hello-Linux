@@ -80,6 +80,11 @@ WSGI_APPLICATION = 'cfehome.wsgi.application'
 #     }
 # }
 
+try:
+    from .db_conf import *
+except:
+    pass
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
