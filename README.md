@@ -102,6 +102,7 @@ DATABASES = {
 ```console
 $ cd path/to/django/proj
 $ pipenv shell
+(venv) $ pipenv install psycopg2-binary # you might need this
 (venv) $ python manage.py migrate
 ```
 
