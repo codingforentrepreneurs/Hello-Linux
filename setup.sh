@@ -216,6 +216,8 @@ git --work-tree=/var/www/${projectslug} --git-dir=/var/repo/${projectgit} checko
 
 ${virtualenvbin}/python -m pip install -r /var/www/${projectslug}/src/requirements.txt
 
+rm /var/www/${projectslug}/src/cfehome/settings/local.py
+
 supervisorctl reread
 supervisorctl update
 
