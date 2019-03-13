@@ -215,12 +215,19 @@ then
 git --work-tree=/var/www/${projectslug} --git-dir=/var/repo/${projectgit} checkout -f
 
 ${virtualenvbin}/python -m pip install -r /var/www/${projectslug}/src/requirements.txt
+
+supervisorctl reread
+supervisorctl update
+
 EOT
 
     else
         git init --bare
         cat <<EOT >> /var/repo/${projectgit}/hooks/post-receive
 git --work-tree=/var/www/${projectslug} --git-dir=/var/repo/${projectgit} checkout -f
+
+supervisorctl reread
+supervisorctl update
 EOT
     fi
 
