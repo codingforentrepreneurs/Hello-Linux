@@ -49,4 +49,50 @@ We'll be using a bare bones Django project that's mostly ready for production. I
 Go to [this guide](https://kirr.co/8mjnna) to get started.
 
 
+### 3. Create PostgreSQL Database for Django
+
+In your virtual machine, run the setup script above or the following commands:
+```console
+
+# enable current logged in user as a default user for postgres
+sudo -u postgres createuser $USER
+
+psql --command="CREATE DATABASE ${projectDB};"
+
+psql --command="CREATE USER ${projectDBuser} WITH PASSWORD '${newPassword}';"
+
+psql --command="ALTER ROLE ${projectDBuser} SET client_encoding TO 'utf8';"
+
+psql --command="ALTER ROLE ${projectDBuser} SET default_transaction_isolation TO 'read committed';"
+
+psql --command="ALTER ROLE ${projectDBuser} SET timezone TO 'UTC';"
+
+psql --command="GRANT ALL PRIVILEGES ON DATABASE ${projectDB} TO ${projectDBuser};"
+
+```
+
+Be sure to replace `${projectDB}`, `${projectDBuser}`, and `${newPassword}` to the values you want to use. The setup script does this automatically.
+
+#### Update Django Production Settings (`src/cfehome/settings/production.py`)
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': '${projectDB}',
+        'USER': '${projectDBuser}',
+        'PASSWORD': '{newPassword}',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
+```
+
+
 
