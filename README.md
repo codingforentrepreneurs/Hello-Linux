@@ -33,7 +33,7 @@ Here's the plan:
     - Let's Encrypt for HTTPs Certificates
 
 
-### Virtual Machine Setup
+### 1. Automatic Virtual Machine Setup
 After you run the below command, you'll see an endpoint to add to your local git remote.
 
 ```console
