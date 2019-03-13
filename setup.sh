@@ -98,7 +98,7 @@ then
 fi
 
 
-if [ "$createGitRepoResponse" == 'y'] || [ "$defaultDjangoProjectResponse" == 'y' ]
+if [ "$createGitRepoResponse" == 'y' ] || [ "$defaultDjangoProjectResponse" == 'y' ]
 then
     echo 
     echo "Local Project details"
