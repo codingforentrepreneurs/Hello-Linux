@@ -36,7 +36,7 @@ Here's the plan:
 ### 1. Automatic Virtual Machine Setup
 After you run the below command, you'll see an endpoint to add to your local git remote.
 
-```console
+```shell
 wget https://raw.githubusercontent.com/codingforentrepreneurs/Hello-Linux/master/setup.sh
 chmod +x setup.sh
 ./setup.sh
@@ -55,7 +55,7 @@ To create a PostgreSQL database, **it's recommended to use [setup.sh](./setup.sh
 
 Another option is to run:
 
-```console
+```shell
 
 # enable current logged in user as a default user for postgres
 sudo -u postgres createuser $USER
@@ -78,7 +78,7 @@ sudo -u postgres psql --command="GRANT ALL PRIVILEGES ON DATABASE ${projectDB} T
 Be sure to replace `${projectDB}`, `${projectDBuser}`, and `${newPassword}` to the values you want to use. The setup script does this automatically.
 
 #### Update Django Production Settings (`src/cfehome/settings/production.py`)
-```
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -99,7 +99,7 @@ DATABASES = {
 ```
 
 #### Activate Virtual Environment & Migrate Django
-```console
+```shell
 $ cd path/to/django/proj
 $ pipenv shell
 (venv) $ pipenv install psycopg2-binary # you might need this
@@ -107,7 +107,7 @@ $ pipenv shell
 ```
 
 Our example
-```console
+```shell
 $ cd /var/www/hello_linux/src/
 $ pipenv shell
 (src) $ python manage.py migrate
